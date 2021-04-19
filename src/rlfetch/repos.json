@@ -1,0 +1,8 @@
+{"VoidLinux":
+	{
+    "color": "green",
+	"command": ["xbps-query", "-l"],
+	"description": "Void Linux",
+	"repository": "void_x86_64"
+	}
+}
