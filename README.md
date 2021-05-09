@@ -14,12 +14,13 @@ pip uninstall rlfetch
 
 ### Usage
 ```
-usage: rlfetch [-h] [--disable DISABLE] [--repo REPO]
+usage: rlfetch [-h] [--disable DISABLE] [--detailed DETAILED] [--repo REPO]
 
 Repology fetch tool
 
 optional arguments:
-  -h, --help         show this help message and exit
-  --disable DISABLE  disable unneeded fields, possible values: newest,outdated,problematic,unique,vulnerable; possible to use multiple values separated by commas
-  --repo REPO        usage of specific repo, possible values: VoidLinux
+  -h, --help           show this help message and exit
+  --disable DISABLE    disable unneeded fields, possible values: newest,outdated,problematic,unique,vulnerable; possible to use multiple values separated by commas
+  --detailed DETAILED  list packages from categories, usage is same to disable flag
+  --repo REPO          usage of specific repo, possible values: VoidLinux
 ```

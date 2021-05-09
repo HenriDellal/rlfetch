@@ -8,11 +8,6 @@ import sys
 
 JSON_ENTRIES = 200
 
-OUTDATED = "&outdated=1"
-UNIQUE = "&families=1"
-PROBLEMATIC = "&problematic=1"
-NEWEST = "&newest=1"
-VULNERABLE = "&vulnerable=1"
 
 
 class Repository:
@@ -58,7 +53,17 @@ def get_json_data(repository, project, request):
     return json.loads(page)
 
 
-def get_pkgs_data(repository, request):
+category_requests = {
+    "outdated" : "&outdated=1",
+    "unique" : "&families=1",
+    "problematic" : "&problematic=1",
+    "newest" : "&newest=1",
+    "vulnerable" : "&vulnerable=1"
+}
+
+
+def get_pkgs_data(repository, category):
+    request = category_requests[category]
     data = get_json_data(repository, "", request)
     keys = list(data.keys())
 
@@ -72,6 +77,13 @@ def get_pkgs_data(repository, request):
 
 
 categories = ["newest", "outdated", "problematic", "unique", "vulnerable"]
+category_names = {
+    "outdated" : "Outdated",
+    "unique" : "Unique",
+    "problematic" : "Problematic",
+    "newest" : "Newest",
+    "vulnerable" : "Potentially vulnerable"
+}
 
 def main():
     curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -84,12 +96,16 @@ def main():
                                           f" values: {','.join(categories)};"
                                           " possible to use multiple values"
                                           " separated by commas")
+    parser.add_argument('--detailed', help="list packages from categories,"
+                                           " usage is same to disable"
+                                           " flag")
     parser.add_argument('--repo', help="usage of specific repo, possible"
                                        " values:"
                                        f" {','.join(json_data.keys())}",
                         default=None)
     args = parser.parse_args()
     disabled = args.disable.split(",") if args.disable else []
+    detailed = args.detailed.split(",") if args.detailed else []
     if not args.repo in json_data.keys():
         args.repo = None
     repo = Repository(json_data, args.repo)
@@ -98,19 +114,14 @@ def main():
     style = fg(repo.color) + attr(1)
     print(f"{style}{repo.desc}")
     print(f"Packages:{attr(0)} {len(pkgs)}")
-    if not "newest" in disabled:
-        print(f"{style}Newest:{attr(0)}"
-              f" {len(list(pkgs_set & set(get_pkgs_data(repo, NEWEST))))}")
-    if not "outdated" in disabled:
-        print(f"{style}Outdated:{attr(0)}"
-              f" {len(list(pkgs_set & set(get_pkgs_data(repo, OUTDATED))))}")
-    if not "problematic" in disabled:
-        print(f"{style}Problematic:{attr(0)}"
-              f" {len(list(pkgs_set & set(get_pkgs_data(repo, PROBLEMATIC))))}")
-    if not "unique" in disabled:
-        print(f"{style}Unique:{attr(0)}"
-              f" {len(list(pkgs_set & set(get_pkgs_data(repo, UNIQUE))))}")
-    if not "vulnerable" in disabled:
-        print(f"{style}Potentially vulnerable:{attr(0)}"
-              f" {len(list(pkgs_set & set(get_pkgs_data(repo, VULNERABLE))))}")
+
+    for key in categories:
+        if not key in disabled:
+            category_pkgs = sorted(list(pkgs_set &
+                                        set(get_pkgs_data(repo, key))))
+            category_name = category_names[key]
+            print(f"{style}{category_name}:{attr(0)} {len(category_pkgs)}")
+            if key in detailed:
+                for pkg in category_pkgs:
+                    print(f" {style}*{attr(0)} {pkg}")
     return 0
