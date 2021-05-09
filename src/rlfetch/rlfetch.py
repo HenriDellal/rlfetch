@@ -41,7 +41,7 @@ class Repository:
 
     def get_pkgs_list(self):
         proc = subprocess.Popen(self.cmd, stdout=subprocess.PIPE)
-        tmp = proc.communicate()[0].decode("ascii")
+        tmp = proc.communicate()[0].decode("UTF-8")
         pkgs = tmp.split("\n")
         pkgs.pop(-1)
         for i in range(len(pkgs)):
